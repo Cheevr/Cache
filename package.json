@@ -1,0 +1,39 @@
+{
+  "name": "cheevr-cache",
+  "version": "1.0.0",
+  "description": "A caching library with abstractions for common implementations",
+  "private": true,
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Cheevr/Cache.git"
+  },
+  "keywords": [
+    "elasticsearch",
+    "cache",
+    "mapping",
+    "cache"
+  ],
+  "author": "Ravi Gairola <ravi@cheevr.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Cheevr/Cache/issues"
+  },
+  "engines" : {
+    "node" : ">=7.6.0"
+  },
+  "scripts": {
+    "test": "istanbul cover _mocha -- --recursive",
+    "test-travis": "istanbul cover _mocha --report lcovonly -- -R spec --recursive"
+  },
+  "devDependencies": {
+    "chai": "^3",
+    "coveralls": "^2",
+    "istanbul": "^0.4",
+    "mocha": "^3"
+  },
+  "dependencies": {
+    "cheevr-config": "https://github.com/Cheevr/Config.git",
+    "cheevr-logging": "https://github.com/Cheevr/Logging.git"
+  }
+}
