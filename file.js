@@ -23,8 +23,7 @@ class FileCache extends Cache {
      */
     constructor(config, name) {
         super({ ttl: true }, config, name);
-        this._path = FileCache._mkDir(config && config.path || 'queues');
-        this._types = {};
+        this._path = FileCache._mkDir(config && config.path || 'cache');
     }
 
     /**
@@ -45,62 +44,70 @@ class FileCache extends Cache {
     /**
      * Stores the payload in cache.
      * @param {string} type         The type/group to cache for
-     * @param {string} id           The id of the document to store
-     * @param {object} payload      The data to cache
-     * @param {Callback} [cb]       Callback to be notified on async store operations
+     * @param {string|number} id    The id of the document to store
+     * @param {Payload} payload     The data to cache
+     * @returns {Promise.<Payload>}
+     * @private
      */
-    store(type, id, payload, cb) {
-        this._types[type][id] = payload;
+    async _store(type, id, payload) {
         let fullPath = path.join(this._path, type);
         fs.existsSync(fullPath) || fs.mkdirSync(fullPath);
-        fs.writeFile(path.join(fullPath, id), JSON.stringify(payload), 'utf8', err => cb && cb(err));
+        fs.writeFileSync(path.join(fullPath, id), JSON.stringify(payload), 'utf8');
+        return payload;
+    }
+
+    async _fetch(type, id) {
+        let file = path.join(this._path, type, id);
+        return fs.existsSync(file) && JSON.parse(fs.readFileSync(file, 'utf8'))
     }
 
     /**
      * Returns all cached messages and listeners
      * @param {string} type    The id/name of the type for which to fetch data
-     * @param {Callback} [cb]   Callback function for async fetching
      * @returns {Object<string, Object>}    A map with message id's mapping to payloads
      */
-    get(type, cb) {
-        if (this._types[type]) {
-            cb(null, this._types[type]);
-            return this._types[type];
-        }
+    async _map(type) {
         let fullPath = path.join(this._path, type);
         let files = fs.readdirSync(fullPath);
         let response = {};
         for (let file of files) {
             let payload = JSON.parse(fs.readFileSync(path.join(fullPath, file), 'utf8'));
-            response[payload.id] = payload;
+            response[file] = payload;
         }
-        cb && cb(null, response);
+        return response;
+    }
+
+    async _list(type) {
+        let fullPath = path.join(this._path, type);
+        let files = fs.readdirSync(fullPath);
+        let response = [];
+        for (let file of files) {
+            let payload = JSON.parse(fs.readFileSync(path.join(fullPath, file), 'utf8'));
+            response.push(payload);
+        }
         return response;
     }
 
     /**
      * Removes all cached data from a type
      * @param {string} type    The id/name of the type to clear
-     * @param {Callback} [cb]   Callback to be notified on async clear operations
      */
-    clear(type, cb) {
+    async _clear(type) {
         let fullPath = path.join(this._path, type);
-        fs.existsSync(fullPath) && fs.unlinkSync(fullPath);
-        delete this._types[type];
-        cb && cb();
+        for (let file of fs.readdirSync(fullPath)) {
+            await this._remove(type, file);
+        }
+        fs.existsSync(fullPath) && fs.rmdirSync(fullPath);
     }
 
     /**
      * Remove an entry from cache.
      * @param {string} type    The id/name of the type from which to remove the message
      * @param {string} id       The id of the message to remove
-     * @param {Callback} [cb]   Callback to be notified on async remove operations
      */
-    remove(type, id, cb) {
+    async _remove(type, id) {
         let fullPath = path.join(this._path, type, id);
         fs.existsSync(fullPath) && fs.unlinkSync(fullPath);
-        delete this._types[type][id];
-        cb && cb();
     }
 
     /**

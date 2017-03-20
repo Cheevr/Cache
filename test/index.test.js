@@ -15,4 +15,10 @@ describe('Manager', () => {
         Cache.configure({ myfiles: { type: 'file' }});
         expect(Cache.instance('myfiles').type).to.equal('file');
     });
+
+    it('should by default call the instance _default_', () => {
+        let instance = Cache.instance({type: 'file'});
+        expect(instance.name).to.equal('_default_');
+        expect(instance.type).to.equal('file');
+    })
 });

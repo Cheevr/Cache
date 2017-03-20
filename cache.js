@@ -51,6 +51,8 @@ class Cache {
      * @returns {Promise.<Payload>}
      */
     store(type, id, payload, cb) {
+        type = typeof type === 'string' ? type : String(type);
+        id = typeof id === 'string' ? id : String(id);
         if (this._ttl) {
             this._timeouts[type] = this._timeouts[type] || {};
             this._timeouts[type][id] && clearTimeout(this._timeouts[type][id]);
@@ -72,6 +74,8 @@ class Cache {
      * @returns {Promise.<Payload>}
      */
     fetch(type, id, cb) {
+        type = typeof type === 'string' ? type : String(type);
+        id = typeof id === 'string' ? id : String(id);
         if (this._ttl) {
             this._timeouts[type][id] && clearTimeout(this._timeouts[type][id]);
             this._timeouts[type][id] = setTimeout(this.remove.bind(this, type, id), this._ttl);
@@ -91,6 +95,7 @@ class Cache {
      * @returns {Promise.<Payload[]>}
      */
     list(type, cb) {
+        type = typeof type === 'string' ? type : String(type);
         if (cb) {
             this._list(type).then(result => cb(null, result)).catch(cb);
         } else {
@@ -106,6 +111,7 @@ class Cache {
      * @returns {Promise.<Object<string, Payload>>}
      */
     map(type, cb) {
+        type = typeof type === 'string' ? type : String(type);
         if (cb) {
             this._map(type).then(result => cb(null, result)).catch(cb);
         } else {
@@ -122,6 +128,8 @@ class Cache {
      * @returns {Promise.<Payload>}
      */
     remove(type, id, cb) {
+        type = typeof type === 'string' ? type : String(type);
+        id = typeof id === 'string' ? id : String(id);
         if (this._timeouts[type]) {
             this._timeouts[type][id] && clearTimeout(this._timeouts[type][id]);
             delete this._timeouts[type][id];
@@ -141,6 +149,7 @@ class Cache {
      * @returns {*}
      */
     clear(type, cb) {
+        type = typeof type === 'string' ? type : String(type);
         if (this._timeouts[type]) {
             this._timeouts[type].forEach(clearTimeout);
             delete this._timeouts[type];
