@@ -1,52 +1,84 @@
-class MemoryCache {
-    constructor() {
-        this._queues = {};
+const Cache = require('./cache');
+
+
+class MemoryCache extends Cache {
+    constructor(config, name) {
+        super({ ttl: true }, config, name);
+        this._types = {};
     }
 
     /**
      * Stores the payload in cache.
      * @param {string} type         The name of the type to cache for
-     * @param {string} id           The id of the document to store
-     * @param {object} payload      The data to cache
-     * @param {string} payload.id   The id that is being used to reference the message later on
-     * @param {Callback} [cb]       Callback to be notified on async store operations
+     * @param {string|number} id    The id of the document to store
+     * @param {*} payload           The data to cache
+     * @returns {Promise.<Payload>}
+     * @private
      */
-    store(type, id, payload, cb) {
-        this._queues[type] = this._queues[type] || {};
-        this._queues[type][id] = payload;
-        cb && cb();
+    async _store(type, id, payload) {
+        this._types[type] = this._types[type] || {};
+        this._types[type][id] = payload;
+        return payload;
+    }
+
+    /**
+     * Fetches payload from cache.
+     * @param {string} type
+     * @param {string|number} id
+     * @returns {Promise.<Payload>}
+     * @private
+     */
+    async _fetch(type, id) {
+        return this._types[type] && this._types[type][id];
     }
 
     /**
      * Returns all cached messages and listeners
      * @param {string} type     The id/name of the type for which to fetch data
-     * @param {Callback} [cb]   Callback function for async fetching
-     * @returns {Object<string, Object>}    A map with message id's mapping to payloads
+     * @returns {Promise.<Payload[]>}
+     * @private
      */
-    get(type, cb) {
-        cb && cb(null, this._queues[type]);
-        return this._queues[type];
+    async _list(type) {
+        let list = [];
+        for (let id in this._types[type]) {
+            list.push(this._types[type][id]);
+        }
+        return list;
     }
 
     /**
-     * Removes all cached data from a type
-     * @param {string} type    The id/name of the type to clear
-     * @param {Callback} [cb]   Callback to be notified on async clear operations
+     * Returns a map of all stored entries for a type
+     * @param {string} type
+     * @returns {Promise.<Object<String, Payload>>}
+     * @private
      */
-    clear(type, cb) {
-        delete this._queues[type];
-        cb && cb();
+    async _map(type) {
+        return this._types[type];
+    }
+
+    /**
+     * Removes all cached data from a type.
+     * @param {string} type    The id/name of the type to clear
+     * @returns {Promise.<Object<String, Payload>>}
+     * @private
+     */
+    async _clear(type) {
+        let entries = this._types[type];
+        delete this._types[type];
+        return entries;
     }
 
     /**
      * Remove an entry from cache.
      * @param {string} type     The id/name of the type from which to remove the message
      * @param {string} id       The id of the message to remove
-     * @param {Callback} [cb]   Callback to be notified on async remove operations
+     * @returns {Promise.<Payload>}
+     * @private
      */
-    remove(type, id, cb) {
-        delete this._queues[type][id];
-        cb && cb();
+    async _remove(type, id) {
+        let payload = this._types[type][id];
+        delete this._types[type][id];
+        return payload;
     }
 }
 

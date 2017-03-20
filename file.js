@@ -1,3 +1,4 @@
+const Cache = require('./cache');
 const fs = require('fs');
 const path = require('path');
 
@@ -15,13 +16,15 @@ const cwd = process.cwd();
  * directories and message are stored as files. All data is also cached in memory, so that file read access only
  * happens after a reboot through lazy initialization.
  */
-class FileCache {
+class FileCache extends Cache {
     /**
      * @param {FileCacheConfig} config
+     * @param {string} name
      */
-    constructor(config) {
+    constructor(config, name) {
+        super({ ttl: true }, config, name);
         this._path = FileCache._mkDir(config && config.path || 'queues');
-        this._queues = {};
+        this._types = {};
     }
 
     /**
@@ -47,7 +50,7 @@ class FileCache {
      * @param {Callback} [cb]       Callback to be notified on async store operations
      */
     store(type, id, payload, cb) {
-        this._queues[type][id] = payload;
+        this._types[type][id] = payload;
         let fullPath = path.join(this._path, type);
         fs.existsSync(fullPath) || fs.mkdirSync(fullPath);
         fs.writeFile(path.join(fullPath, id), JSON.stringify(payload), 'utf8', err => cb && cb(err));
@@ -60,9 +63,9 @@ class FileCache {
      * @returns {Object<string, Object>}    A map with message id's mapping to payloads
      */
     get(type, cb) {
-        if (this._queues[type]) {
-            cb(null, this._queues[type]);
-            return this._queues[type];
+        if (this._types[type]) {
+            cb(null, this._types[type]);
+            return this._types[type];
         }
         let fullPath = path.join(this._path, type);
         let files = fs.readdirSync(fullPath);
@@ -83,7 +86,7 @@ class FileCache {
     clear(type, cb) {
         let fullPath = path.join(this._path, type);
         fs.existsSync(fullPath) && fs.unlinkSync(fullPath);
-        delete this._queues[type];
+        delete this._types[type];
         cb && cb();
     }
 
@@ -96,7 +99,7 @@ class FileCache {
     remove(type, id, cb) {
         let fullPath = path.join(this._path, type, id);
         fs.existsSync(fullPath) && fs.unlinkSync(fullPath);
-        delete this._queues[type][id];
+        delete this._types[type][id];
         cb && cb();
     }
 
