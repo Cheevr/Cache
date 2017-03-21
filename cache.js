@@ -21,7 +21,6 @@ class Cache {
         this._name = name;
         this._type = config.type;
         this._ttl = features.ttl && config.ttl;
-        this._ttl && (this._ttl *= 1000);
         this._timeouts = {};
     }
 
