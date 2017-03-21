@@ -75,7 +75,7 @@ class Cache {
     fetch(type, id, cb) {
         type = typeof type === 'string' ? type : String(type);
         id = typeof id === 'string' ? id : String(id);
-        if (this._ttl) {
+        if (this._ttl && this._timeouts[type]) {
             this._timeouts[type][id] && clearTimeout(this._timeouts[type][id]);
             this._timeouts[type][id] = setTimeout(this.remove.bind(this, type, id), this._ttl);
         }
