@@ -4,6 +4,8 @@ const expect = require('chai').expect;
 const Cache = require('..');
 
 
+process.on('unhandledRejection', console.error)
+
 describe('Manager', () => {
     beforeEach(() => Cache.reset());
 

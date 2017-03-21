@@ -46,16 +46,16 @@ describe('File', () => {
         expect(list).to.include({a: 'Test1'});
         expect(list).to.include({a: 'Test2'});
 
-        await file.remove('TestType', 1);
+        let removeResult = await file.remove('TestType', 1);
+        expect(removeResult).to.deep.equal({a: 'Test1'});
+
         let map = await file.map('TestType');
         expect(map).to.have.any.key('2');
         expect(map['2']).to.deep.equal({a: 'Test2'});
 
         await file.clear('TestType');
-        let entry1 = await file.fetch('TestType', 1);
-        expect(entry1).to.be.not.ok;
-        let entry2 = await file.fetch('TestType', 2);
-        expect(entry2).to.be.not.ok;
+        expect(await file.fetch('TestType', 1)).to.be.not.ok;
+        expect(await file.fetch('TestType', 2)).to.be.not.ok;
         expect(fs.existsSync(path.join(file.path, 'TestType'))).to.be.not.ok;
     });
 });

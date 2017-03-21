@@ -36,5 +36,8 @@
   "dependencies": {
     "cheevr-config": "https://github.com/Cheevr/Config.git",
     "cheevr-logging": "https://github.com/Cheevr/Logging.git"
+  },
+  "peerDependencies": {
+    "redis": "^2"
   }
 }

@@ -107,7 +107,9 @@ class FileCache extends Cache {
      */
     async _remove(type, id) {
         let fullPath = path.join(this._path, type, id);
+        let result = await this._fetch(type, id);
         fs.existsSync(fullPath) && fs.unlinkSync(fullPath);
+        return result;
     }
 
     /**

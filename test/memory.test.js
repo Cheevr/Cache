@@ -44,15 +44,15 @@ describe('Memory', () => {
         expect(list).to.include({a: 'Test1'});
         expect(list).to.include({a: 'Test2'});
 
-        await memory.remove('TestType', 1);
+        let removeResult = await memory.remove('TestType', 1);
+        expect(removeResult).to.deep.equal({a: 'Test1'});
+
         let map = await memory.map('TestType');
         expect(map).to.have.any.key('2');
         expect(map['2']).to.deep.equal({a: 'Test2'});
 
         await memory.clear('TestType');
-        let entry1 = await memory.fetch('TestType', 1);
-        expect(entry1).to.be.not.ok;
-        let entry2 = await memory.fetch('TestType', 2);
-        expect(entry2).to.be.not.ok;
+        expect(await memory.fetch('TestType', 1)).to.be.not.ok;
+        expect(await memory.fetch('TestType', 2)).to.be.not.ok;
     });
 });
