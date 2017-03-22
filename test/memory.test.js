@@ -1,12 +1,21 @@
 /* global describe, it, after, before, afterEach, beforeEach */
 const expect = require('chai').expect;
+const Logging = require('cheevr-logging');
 
 const Memory = require('../memory');
 
 
+Logging.cache = {
+    trace: () => {},
+    debug: () => {},
+    info: () => {},
+    warn: () => {},
+    error: () => {}
+};
+
 describe('Memory', () => {
     it('should create a memory cache instance', () => {
-        let memory = new Memory({type: 'memory'}, 'Test');
+        let memory = new Memory({type: 'memory', logger: 'cache'}, 'Test');
         expect(memory.type).to.equal('memory');
         expect(memory.name).to.equal('Test');
         expect(memory).to.respondTo('_store');
@@ -18,7 +27,7 @@ describe('Memory', () => {
     });
 
     it('should store and retrieve a cache value using callbacks', done => {
-        let memory = new Memory({type: 'memory'}, 'Test');
+        let memory = new Memory({type: 'memory', logger: 'cache'}, 'Test');
         memory.store('TestType', 1, {a: 'Test'}, () => {
             memory.fetch('TestType', 1, (err, result) => {
                 expect(result).to.deep.equal({a: 'Test'});
@@ -28,14 +37,14 @@ describe('Memory', () => {
     });
 
     it('should store and retrieve a cache value using promises', async () => {
-        let memory = new Memory({type: 'memory'}, 'Test');
+        let memory = new Memory({type: 'memory', logger: 'cache'}, 'Test');
         await memory.store('TestType', 1, {a: 'Test'});
         let result = await memory.fetch('TestType', 1);
         expect(result).to.deep.equal({a: 'Test'});
     });
 
     it('should support all standard operation for caching', async () => {
-        let memory = new Memory({type: 'memory'}, 'Test');
+        let memory = new Memory({type: 'memory', logger: 'cache'}, 'Test');
         await memory.store('TestType', 1, {a: 'Test1'});
         await memory.store('TestType', 2, {a: 'Test2'});
 

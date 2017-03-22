@@ -30,7 +30,7 @@ class Manager {
             name = '_default_';
         }
         instanceConfig = instanceConfig || this._config[name] || { type: this._defaults.defaultType };
-        _.defaultsDeep(instanceConfig, this._defaults[config.type]);
+        _.defaultsDeep(instanceConfig, this._defaults[instanceConfig.type]);
         instanceConfig.type = instanceConfig.type.toLowerCase().trim();
         return new (require('./' + instanceConfig.type))(instanceConfig, name);
     }

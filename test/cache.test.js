@@ -1,8 +1,17 @@
 /* global describe, it, after, before, afterEach, beforeEach */
 const expect = require('chai').expect;
+const Logging = require('cheevr-logging');
 
 const Memory = require('../memory');
 
+
+Logging.cache = {
+    trace: () => {},
+    debug: () => {},
+    info: () => {},
+    warn: () => {},
+    error: () => {}
+};
 
 describe('Cache', () => {
     async function delay(ms) {
@@ -10,7 +19,7 @@ describe('Cache', () => {
     }
 
     it('should expire an entry after a given time', async () => {
-        let memory = new Memory({type: 'memory', ttl: 50}, 'Test');
+        let memory = new Memory({type: 'memory', logger:'cache', ttl: 50}, 'Test');
 
         await memory.store('TestType', 1, {a: 'Test'});
         let result1 = await memory.fetch('TestType', 1);
@@ -22,7 +31,7 @@ describe('Cache', () => {
     });
 
     it('should reset the ttl if stored or fetched again', async () => {
-        let memory = new Memory({type: 'memory', ttl: 50}, 'Test');
+        let memory = new Memory({type: 'memory', logger:'cache', ttl: 50}, 'Test');
 
         await memory.store('TestType', 1, {a: 'Test'});
         let result1 = await memory.fetch('TestType', 1);

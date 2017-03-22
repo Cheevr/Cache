@@ -2,14 +2,23 @@
 try{ require('redis'); } catch(e) { return; }
 const expect = require('chai').expect;
 const fs = require('fs');
+const Logging = require('cheevr-logging');
 const path = require('path');
 
 const Redis = require('../redis');
 
 
+Logging.cache = {
+    trace: () => {},
+    debug: () => {},
+    info: () => {},
+    warn: () => {},
+    error: () => {}
+};
+
 describe('Redis', () => {
     it('should create a redis cache instance', () => {
-        let redis = new Redis({type: 'redis'}, 'Test');
+        let redis = new Redis({type: 'redis', logger: 'cache'}, 'Test');
         expect(redis.type).to.equal('redis');
         expect(redis.name).to.equal('Test');
         expect(redis).to.respondTo('_store');
@@ -21,7 +30,7 @@ describe('Redis', () => {
     });
 
     it('should store and retrieve a cache value using callbacks', done => {
-        let redis = new Redis({type: 'redis'}, 'Test');
+        let redis = new Redis({type: 'redis', logger: 'cache'}, 'Test');
         redis.store('TestType', 1, {a: 'Test'}, () => {
             redis.fetch('TestType', 1, (err, result) => {
                 expect(result).to.deep.equal({a: 'Test'});
@@ -32,7 +41,7 @@ describe('Redis', () => {
     });
 
     it('should store and retrieve a cache value using promises', async () => {
-        let redis = new Redis({type: 'redis'}, 'Test');
+        let redis = new Redis({type: 'redis', logger: 'cache'}, 'Test');
         await redis.store('TestType', 1, {a: 'Test'});
         let result = await redis.fetch('TestType', 1);
         expect(result).to.deep.equal({a: 'Test'});
@@ -40,7 +49,7 @@ describe('Redis', () => {
     });
 
     it('should support all standard operation for caching without ttl', async () => {
-        let redis = new Redis({type: 'redis'}, 'Test');
+        let redis = new Redis({type: 'redis', logger: 'cache'}, 'Test');
         await redis.store('TestType', 1, {a: 'Test1'});
         await redis.store('TestType', 2, {a: 'Test2'});
 
@@ -61,7 +70,7 @@ describe('Redis', () => {
     });
 
     it('should support all standard operation for caching with a ttl', async () => {
-        let redis = new Redis({type: 'redis', ttl: 10000 }, 'Test');
+        let redis = new Redis({type: 'redis', logger: 'cache', ttl: 10000 }, 'Test');
         await redis.store('TestType', 1, {a: 'Test1'});
         await redis.store('TestType', 2, {a: 'Test2'});
 

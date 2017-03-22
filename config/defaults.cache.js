@@ -7,6 +7,7 @@ module.exports = {
         logger: 'cache'
     },
     redis: {
+        logger: 'cache',
         host: 'localhost',
         port: 6379,
         prefix: '',

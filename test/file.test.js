@@ -1,14 +1,23 @@
 /* global describe, it, after, before, afterEach, beforeEach */
 const expect = require('chai').expect;
 const fs = require('fs');
+const Logging = require('cheevr-logging');
 const path = require('path');
 
 const File = require('../file');
 
 
+Logging.cache = {
+    trace: () => {},
+    debug: () => {},
+    info: () => {},
+    warn: () => {},
+    error: () => {}
+};
+
 describe('File', () => {
     it('should create a file cache instance', () => {
-        let file = new File({type: 'file'}, 'Test');
+        let file = new File({type: 'file', logger: 'cache'}, 'Test');
         expect(file.type).to.equal('file');
         expect(file.name).to.equal('Test');
         expect(file).to.respondTo('_store');
@@ -20,7 +29,7 @@ describe('File', () => {
     });
 
     it('should store and retrieve a cache value using callbacks', done => {
-        let file = new File({type: 'file'}, 'Test');
+        let file = new File({type: 'file', logger: 'cache'}, 'Test');
         file.store('TestType', 1, {a: 'Test'}, () => {
             file.fetch('TestType', 1, (err, result) => {
                 expect(result).to.deep.equal({a: 'Test'});
@@ -30,14 +39,14 @@ describe('File', () => {
     });
 
     it('should store and retrieve a cache value using promises', async () => {
-        let file = new File({type: 'file'}, 'Test');
+        let file = new File({type: 'file', logger: 'cache'}, 'Test');
         await file.store('TestType', 1, {a: 'Test'});
         let result = await file.fetch('TestType', 1);
         expect(result).to.deep.equal({a: 'Test'});
     });
 
     it('should support all standard operation for caching', async () => {
-        let file = new File({type: 'file'}, 'Test');
+        let file = new File({type: 'file', logger: 'cache'}, 'Test');
         await file.store('TestType', 1, {a: 'Test1'});
         await file.store('TestType', 2, {a: 'Test2'});
 

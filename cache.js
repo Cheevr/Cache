@@ -1,3 +1,5 @@
+const Logging = require('cheevr-logging');
+
 /**
  * A payload object, that can be anything that can be stored by the cache implementation.
  * @typedef {*} Payload
@@ -21,7 +23,9 @@ class Cache {
         this._name = name;
         this._type = config.type;
         this._ttl = features.ttl && config.ttl;
+        this._log = Logging[config.logger];
         this._timeouts = {};
+        this._log.info('Set up cache with name %s of type %s', this.name, this.type);
     }
 
     /**
@@ -57,8 +61,12 @@ class Cache {
             this._timeouts[type][id] && clearTimeout(this._timeouts[type][id]);
             this._timeouts[type][id] = setTimeout(this.remove.bind(this), this._ttl, type, id);
         }
+        this._log.trace('Storing payload under key [%s:%s] in %s cache (%s)', type, id, this.name, this.type);
         if (cb) {
-            return this._store(type, id, payload).then(result => cb(null, result)).catch(cb)
+            return this._store(type, id, payload).then(result => cb(null, result)).catch(err => {
+                this._log.error('Unable to store payload for key [%s:%s] in cache of type %s:', type, id, this.type, err);
+                cb(err);
+            })
         } else {
             return this._store(type, id, payload);
         }
@@ -79,8 +87,12 @@ class Cache {
             this._timeouts[type][id] && clearTimeout(this._timeouts[type][id]);
             this._timeouts[type][id] = setTimeout(this.remove.bind(this, type, id), this._ttl);
         }
+        this._log.trace('Fetching payload for key [%s:%s] from %s cache (%s)', type, id, this.name, this.type);
         if (cb) {
-            return this._fetch(type, id).then(result => cb(null, result)).catch(cb);
+            return this._fetch(type, id).then(result => cb(null, result)).catch(err => {
+                this._log.error('Unable to fetch payload for key [%s:%s] from cache of type %s:', type, id, this.type, err);
+                cb(err);
+            });
         } else {
             return this._fetch(type, id);
         }
@@ -96,7 +108,10 @@ class Cache {
     list(type, cb) {
         type = typeof type === 'string' ? type : String(type);
         if (cb) {
-            this._list(type).then(result => cb(null, result)).catch(cb);
+            this._list(type).then(result => cb(null, result)).catch(err => {
+                this._log.error('Unable to list payloads for key [%s] from cache of type %s', type, this.type, err);
+                cb(err);
+            });
         } else {
             return this._list(type);
         }
@@ -112,7 +127,10 @@ class Cache {
     map(type, cb) {
         type = typeof type === 'string' ? type : String(type);
         if (cb) {
-            this._map(type).then(result => cb(null, result)).catch(cb);
+            this._map(type).then(result => cb(null, result)).catch(err => {
+                this._log.error('Unable create map for key [%s] from cache of type %s', type, this.type, err);
+                cb(err);
+            });
         } else {
             return this._map(type);
         }
@@ -133,8 +151,12 @@ class Cache {
             this._timeouts[type][id] && clearTimeout(this._timeouts[type][id]);
             delete this._timeouts[type][id];
         }
+        this._log.trace('Removing payload for key [%s:%s] from %s cache (%s)', type, id, this.name, this.type);
         if (cb) {
-            this._remove(type, id).then(result => cb(null, result)).catch(cb);
+            this._remove(type, id).then(result => cb(null, result)).catch(err => {
+                this._log.error('Unable to remove entry for key [%s:%s] form cache of type %s:', type, id, this.type, err);
+                cb(err);
+            });
         } else {
             return this._remove(type, id);
         }
@@ -143,8 +165,8 @@ class Cache {
     /**
      * Removes all payload of a given type from cache. Supports both callback and promise interface. Will
      * remove the ttl of all entries affected.
-     * @param type
-     * @param cb
+     * @param {string} type
+     * @param {Callback} cb
      * @returns {*}
      */
     clear(type, cb) {
@@ -153,8 +175,12 @@ class Cache {
             this._timeouts[type].forEach(clearTimeout);
             delete this._timeouts[type];
         }
+        this._log.trace('Clearing cache for type [%s] from %s cache (%s)', type, this.name, this.type);
         if (cb) {
-            this._clear(type).then(result => cb(null, result)).catch(cb);
+            this._clear(type).then(result => cb(null, result)).catch(err => {
+                this._log.error('Unable to clear entries for key [%s] from cache of type %s:', type, this.type, err);
+                cb(err);
+            });
         } else {
             return this._clear(type);
         }
