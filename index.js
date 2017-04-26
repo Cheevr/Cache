@@ -17,6 +17,7 @@ let config = require('cheevr-config').addDefaultConfig(__dirname, 'config');
 class Manager {
     constructor() {
         this.reset();
+        config.on('change', () => this.reset());
     }
     /**
      * Returns a cache implementation of the given type.
