@@ -1,6 +1,6 @@
 /* global describe, it, after, before, afterEach, beforeEach */
 const expect = require('chai').expect;
-const Logging = require('cheevr-logging');
+const Logging = require('@cheevr/logging');
 
 const Cache = require('..');
 

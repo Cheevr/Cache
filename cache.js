@@ -1,4 +1,4 @@
-const Logging = require('cheevr-logging');
+const Logging = require('@cheevr/logging');
 
 /**
  * A payload object, that can be anything that can be stored by the cache implementation.

@@ -1,5 +1,5 @@
 let _ = require('lodash');
-let config = require('cheevr-config').addDefaultConfig(__dirname, 'config');
+let config = require('@cheevr/config').addDefaultConfig(__dirname, 'config');
 
 
 /**

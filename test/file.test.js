@@ -1,7 +1,7 @@
 /* global describe, it, after, before, afterEach, beforeEach */
 const expect = require('chai').expect;
 const fs = require('fs');
-const Logging = require('cheevr-logging');
+const Logging = require('@cheevr/logging');
 const path = require('path');
 
 const File = require('../file');

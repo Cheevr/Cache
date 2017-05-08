@@ -2,7 +2,7 @@
 try{ require('redis'); } catch(e) { return; }
 const expect = require('chai').expect;
 const fs = require('fs');
-const Logging = require('cheevr-logging');
+const Logging = require('@cheevr/logging');
 const path = require('path');
 
 const Redis = require('../redis');
