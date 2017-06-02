@@ -6,3 +6,4 @@ cache/
 .travis.yml
 .gitignore
 .nyc_output/
+.npmignore
