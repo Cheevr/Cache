@@ -55,8 +55,8 @@ describe('Redis', () => {
 
         let list = await redis.list('TestType');
         expect(list.length).to.equal(2);
-        expect(list).to.include({a: 'Test1'});
-        expect(list).to.include({a: 'Test2'});
+        expect(list).to.deep.include({a: 'Test1'});
+        expect(list).to.deep.include({a: 'Test2'});
 
         let removeResult = await redis.remove('TestType', 1);
         expect(removeResult).to.deep.equal({a: 'Test1'});
@@ -76,8 +76,8 @@ describe('Redis', () => {
 
         let list = await redis.list('TestType');
         expect(list.length).to.equal(2);
-        expect(list).to.include({a: 'Test1'});
-        expect(list).to.include({a: 'Test2'});
+        expect(list).to.deep.include({a: 'Test1'});
+        expect(list).to.deep.include({a: 'Test2'});
 
         let removeResult = await redis.remove('TestType', 1);
         expect(removeResult).to.deep.equal({a: 'Test1'});
