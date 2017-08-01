@@ -77,7 +77,7 @@ class Cache {
      * will reset the ttl (if enabled).
      * @param {string} type
      * @param {string|number} id
-     * @param {Callback} cb
+     * @param {Callback} [cb]
      * @returns {Promise.<Payload>}
      */
     fetch(type, id, cb) {
